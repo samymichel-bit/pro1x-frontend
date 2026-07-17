@@ -76,3 +76,4 @@ styles/
 - `next lint` : 0 warning
 - Non exécuté ici : `next build` (nécessite un accès réseau à Google Fonts au
   build, indisponible dans cet environnement sandboxé) — à lancer côté client.
+# pro1x-frontend
