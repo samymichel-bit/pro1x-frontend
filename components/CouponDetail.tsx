@@ -28,7 +28,8 @@ export function CouponDetail({ coupon, onClose }: CouponDetailProps) {
         <div className="flex justify-center pt-3 pb-2"><div className="w-10 h-1 bg-muted rounded-full" /></div>
         <div className="px-6 py-4 border-b border-muted/60">
           <div className="flex items-center justify-between mb-3">
-            <Badge classe={coupon.class} size="md" />
+            <Badge classe={coupon.classe} size="md" />
+
             <button onClick={onClose} className="p-2 rounded-lg hover:bg-muted/50 transition-colors"><X size={18} className="text-secondary/60" /></button>
           </div>
           <div className="flex items-center justify-between">

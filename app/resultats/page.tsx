@@ -9,7 +9,12 @@ import { Calendar } from 'lucide-react';
 export default function ResultsPage() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const { data, isLoading, error } = useResults(date);
-  const results = data?.coupons || data || []; 
+  const results: any[] = Array.isArray(data)
+    ? data
+    : Array.isArray((data as any)?.coupons)
+      ? (data as any).coupons
+      : [];
+
 
   return (
     <div className="min-h-[100dvh] bg-surface pb-24">

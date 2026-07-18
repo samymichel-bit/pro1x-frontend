@@ -1,6 +1,8 @@
-import Skeleton from "./Skeleton";
+import { Skeleton } from "./Skeleton";
+
 
 export default function CouponSkeleton() {
+
   return (
     <div className="overflow-hidden rounded-xl border border-muted bg-white">
       <div className="flex items-center justify-between border-b border-muted/70 px-4 py-3">

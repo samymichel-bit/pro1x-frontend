@@ -13,7 +13,8 @@ interface CouponCardProps {
 }
 
 export function CouponCard({ coupon, isPremium, onDetailsClick }: CouponCardProps) {
-  const oddsRange = `${coupon.min_odds?.toFixed(2) ?? '0.00'} – ${coupon.max_odds?.toFixed(2) ?? '0.00'}`;
+  const oddsRange = `${coupon.odds_min?.toFixed(2) ?? '0.00'} – ${coupon.odds_max?.toFixed(2) ?? '0.00'}`;
+
 
   return (
     <div className={cn(
@@ -21,7 +22,8 @@ export function CouponCard({ coupon, isPremium, onDetailsClick }: CouponCardProp
       !isPremium && 'opacity-60 grayscale-[30%]'
     )}>
       <div className="flex items-start justify-between mb-4">
-        <Badge classe={coupon.class} size="md" />
+        <Badge classe={coupon.classe} size="md" />
+
         <div className="flex items-center gap-1.5 text-secondary/70">
           <CalendarDays size={14} />
           <span className="text-xs font-medium font-mono tabular-nums">{coupon.match_count} matchs</span>
