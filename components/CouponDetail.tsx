@@ -1,122 +1,71 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { Copy, X } from "lucide-react";
-import LockIcon from "./LockIcon";
-import type { Coupon, SportType } from "@/types";
+import { X, Copy, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/Badge';
+import { useState } from 'react';
+import type { Coupon } from '@/types';
 
-const SPORT_EMOJI: Record<SportType, string> = {
-  football: "⚽",
-  basketball: "🏀",
-  tennis: "🎾",
-};
-
-export default function CouponDetail({
-  coupon,
-  open,
-  onClose,
-}: {
-  coupon: Coupon | null;
-  open: boolean;
+interface CouponDetailProps {
+  coupon: Coupon;
   onClose: () => void;
-}) {
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+}
 
-  if (!open || !coupon) return null;
+export function CouponDetail({ coupon, onClose }: CouponDetailProps) {
+  const [copied, setCopied] = useState(false);
 
-  function handleCopy() {
-    if (!coupon) return;
-    const lines = coupon.items.map(
-      (item) => `${item.home_team} - ${item.away_team} : ${item.market} (${item.odds.toFixed(2)})`
-    );
-    const text = `PRO1X\n${lines.join("\n")}\nCote totale : ${coupon.total_odds.toFixed(2)}`;
+  const handleCopy = () => {
+    const text = coupon.items?.map((item: any) => `${item.home_team} vs ${item.away_team} - ${item.prediction}`).join('\n') || '';
     navigator.clipboard.writeText(text);
-  }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
-      <div
-        className="absolute inset-0 animate-fade-in bg-secondary-900/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      <div className="relative z-10 w-full max-w-md animate-slide-up rounded-t-2xl bg-white shadow-modal sm:animate-fade-in sm:rounded-2xl">
-        <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-muted sm:hidden" />
-
-        <div className="flex items-center justify-between px-5 pb-3 pt-4">
-          <h2 className="font-serif text-lg font-semibold text-secondary-800">Détail du coupon</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-secondary-400 transition-colors duration-200 hover:text-secondary-600"
-            aria-label="Fermer"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {coupon.is_locked ? (
-          <div className="flex flex-col items-center gap-3 px-8 pb-10 pt-4 text-center">
-            <LockIcon size={32} className="text-secondary-300" />
-            <p className="text-sm text-secondary-500">
-              Abonnez-vous pour accéder au détail de ce coupon et à l&apos;ensemble des pronostics
-              premium.
-            </p>
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-white rounded-t-2xl shadow-2xl animate-slide-up max-h-[85vh] overflow-hidden flex flex-col">
+        <div className="flex justify-center pt-3 pb-2"><div className="w-10 h-1 bg-muted rounded-full" /></div>
+        <div className="px-6 py-4 border-b border-muted/60">
+          <div className="flex items-center justify-between mb-3">
+            <Badge classe={coupon.class} size="md" />
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-muted/50 transition-colors"><X size={18} className="text-secondary/60" /></button>
           </div>
-        ) : (
-          <>
-            <div className="max-h-[55vh] space-y-1 overflow-y-auto px-5 pb-2">
-              {coupon.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between border-b border-muted/60 py-3 last:border-none"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-lg leading-none">{SPORT_EMOJI[item.sport] ?? "🏆"}</span>
-                    <div>
-                      <p className="text-sm font-medium text-secondary-800">
-                        {item.home_team} – {item.away_team}
-                      </p>
-                      <p className="text-xs text-secondary-400">
-                        {item.market} · {item.prediction}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-mono text-sm font-semibold tabular-nums text-secondary-800">
-                      {item.odds.toFixed(2)}
-                    </p>
-                    <p className="font-mono text-[10px] tabular-nums text-secondary-400">
-                      {Math.round(item.probability * 100)}%
-                    </p>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-secondary/60">Cote totale</span>
+            <span className="text-xl font-semibold font-mono tabular-nums text-primary">{coupon.total_odds?.toFixed(2)}</span>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="space-y-3">
+            {coupon.items?.map((item: any, index: number) => (
+              <div key={item.id || index} className="p-4 rounded-xl border border-muted/60 bg-white hover:shadow-soft transition-all">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-lg bg-primary/10"><span className="text-primary text-xs font-bold">{item.sport === 'football' ? '⚽' : item.sport === 'basketball' ? '🏀' : '🎾'}</span></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-secondary truncate">{item.home_team} <span className="text-muted">vs</span> {item.away_team}</p>
+                    <p className="text-xs text-secondary/60 truncate">{item.league}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between border-t border-muted px-5 py-4">
-              <div>
-                <p className="text-xs text-secondary-400">Cote totale</p>
-                <p className="font-mono text-lg font-semibold tabular-nums text-primary">
-                  {coupon.total_odds.toFixed(2)}
-                </p>
+                <div className="flex items-center justify-between pt-3 border-t border-muted/40">
+                  <div>
+                    <p className="text-xs text-secondary/60 mb-0.5">{item.market}</p>
+                    <p className="text-sm font-semibold text-primary">{item.prediction}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-secondary/60 mb-0.5">Cote</p>
+                    <p className="text-lg font-semibold font-mono tabular-nums text-secondary">{item.odds?.toFixed(2)}</p>
+                  </div>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="flex items-center gap-2 rounded-lg bg-secondary-800 px-4 py-2.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-secondary-900"
-              >
-                <Copy size={14} />
-                Copier le coupon
-              </button>
-            </div>
-          </>
-        )}
+            ))}
+          </div>
+        </div>
+        <div className="px-6 py-4 border-t border-muted/60 bg-surface/50">
+          <button onClick={handleCopy} className={cn('w-full py-3 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2', copied ? 'bg-emerald-500 text-white' : 'bg-primary text-white hover:bg-primary/90')}>
+            {copied ? <Check size={16} /> : <Copy size={16} />} {copied ? 'Copié !' : 'Copier le coupon'}
+          </button>
+        </div>
       </div>
     </div>
   );

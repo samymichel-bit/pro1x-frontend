@@ -1,60 +1,46 @@
-import { ListChecks } from "lucide-react";
-import Badge from "./Badge";
-import LockIcon from "./LockIcon";
-import type { Coupon, CouponClass } from "@/types";
+'use client';
 
-const CLASS_LABEL: Record<CouponClass, string> = {
-  safe: "Safe",
-  opportunite: "Opportunités",
-  risk: "Risk",
-};
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/Badge';
+import { Lock } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
+import type { Coupon } from '@/types';
 
-export default function CouponCard({
-  coupon,
-  onViewDetails,
-}: {
+interface CouponCardProps {
   coupon: Coupon;
-  onViewDetails: () => void;
-}) {
+  isPremium: boolean;
+  onDetailsClick?: (coupon: Coupon) => void;
+}
+
+export function CouponCard({ coupon, isPremium, onDetailsClick }: CouponCardProps) {
+  const oddsRange = `${coupon.min_odds?.toFixed(2) ?? '0.00'} – ${coupon.max_odds?.toFixed(2) ?? '0.00'}`;
+
   return (
-    <div
-      className={`relative overflow-hidden rounded-xl border border-muted bg-white shadow-card transition-shadow duration-200 hover:shadow-card-hover ${
-        coupon.is_locked ? "opacity-50" : ""
-      }`}
-    >
-      <div className="flex items-center justify-between border-b border-muted/70 px-4 py-3">
-        <Badge classe={coupon.classe}>{CLASS_LABEL[coupon.classe]}</Badge>
-        <span className="font-mono text-xs tabular-nums text-secondary-500">
-          {coupon.odds_min.toFixed(2)} – {coupon.odds_max.toFixed(2)}
-        </span>
-      </div>
-
-      <div className="flex items-center justify-between px-4 py-4">
-        <div className="flex items-center gap-2 text-sm text-secondary-700">
-          <ListChecks size={18} strokeWidth={1.75} className="text-secondary-400" />
-          <span>{coupon.match_count} matchs</span>
+    <div className={cn(
+      'relative bg-white rounded-xl border border-muted/60 p-5 transition-all duration-300 ease-out shadow-soft hover:shadow-card-hover hover:-translate-y-0.5',
+      !isPremium && 'opacity-60 grayscale-[30%]'
+    )}>
+      <div className="flex items-start justify-between mb-4">
+        <Badge classe={coupon.class} size="md" />
+        <div className="flex items-center gap-1.5 text-secondary/70">
+          <CalendarDays size={14} />
+          <span className="text-xs font-medium font-mono tabular-nums">{coupon.match_count} matchs</span>
         </div>
-
-        {!coupon.is_locked && (
-          <button
-            type="button"
-            onClick={onViewDetails}
-            className="rounded-lg border border-primary px-3 py-1.5 text-xs font-semibold text-primary transition-colors duration-200 hover:bg-primary/5"
-          >
-            Voir détails
-          </button>
-        )}
       </div>
-
-      {coupon.is_locked && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[1px]">
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-full bg-secondary-800 px-4 py-2 text-xs font-semibold text-white shadow-lg"
-          >
-            <LockIcon size={14} />
-            Débloquer
-          </button>
+      <div className="mb-4">
+        <span className="text-2xl font-semibold font-mono tabular-nums text-secondary">{oddsRange}</span>
+      </div>
+      {isPremium ? (
+        <button
+          onClick={() => onDetailsClick?.(coupon)}
+          className="w-full py-2.5 rounded-lg border border-primary/30 text-primary font-medium text-sm transition-all duration-200 hover:bg-primary/5 hover:border-primary/50 active:scale-[0.98]"
+        >
+          Voir détails
+        </button>
+      ) : (
+        <div className="flex items-center justify-center gap-2 py-2.5 text-primary/60">
+          <Lock size={16} />
+          <span className="text-sm font-medium">Contenu premium</span>
         </div>
       )}
     </div>

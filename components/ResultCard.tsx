@@ -1,102 +1,57 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { CheckCircle2, ChevronDown, Copy, ShieldCheck, XCircle } from "lucide-react";
-import Badge from "./Badge";
-import LockIcon from "./LockIcon";
-import type { Coupon, CouponClass } from "@/types";
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/Badge';
+import { CheckCircle2, XCircle, Lock, Copy, Check } from 'lucide-react';
+import { useState } from 'react';
 
-const CLASS_LABEL: Record<CouponClass, string> = {
-  safe: "Safe",
-  opportunite: "Opportunités",
-  risk: "Risk",
-};
+export function ResultCard({ coupon, isPremium }: { coupon: any; isPremium: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const isWon = coupon.items?.every((item: any) => item.status === 'won');
+  const isLost = coupon.items?.some((item: any) => item.status === 'lost');
 
-export default function ResultCard({ coupon }: { coupon: Coupon }) {
-  const [expanded, setExpanded] = useState(false);
-  const won = coupon.status === "won";
-  const lost = coupon.status === "lost";
-  const hasDetails = coupon.items.length > 0;
+  const handleCopyHash = () => {
+    if (coupon.sha256_hash) {
+      navigator.clipboard.writeText(coupon.sha256_hash);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
-    <div
-      className={`overflow-hidden rounded-xl border bg-white transition-colors duration-200 ${
-        won ? "border-emerald-200 bg-emerald-50/40" : lost ? "border-red-200 bg-red-50/40" : "border-muted"
-      }`}
-    >
-      <button
-        type="button"
-        onClick={() => hasDetails && setExpanded((value) => !value)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left"
-      >
-        <div className="flex items-center gap-2.5">
-          <Badge classe={coupon.classe}>{CLASS_LABEL[coupon.classe]}</Badge>
-          {won && <CheckCircle2 size={18} className="text-emerald-600" />}
-          {lost && <XCircle size={18} className="text-red-500" />}
+    <div className={cn(
+      'relative bg-white rounded-xl border p-5 transition-all duration-300',
+      isWon ? 'border-emerald-200 shadow-[0_0_0_1px_rgba(16,185,129,0.1)]' : 
+      isLost ? 'border-red-200 shadow-[0_0_0_1px_rgba(239,68,68,0.1)]' : 
+      'border-muted/60 shadow-soft'
+    )}>
+      <div className="flex items-start justify-between mb-4">
+        <Badge classe={coupon.class} size="md" />
+        <div className={cn(
+          'flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold',
+          isWon ? 'bg-emerald-50 text-emerald-700' : isLost ? 'bg-red-50 text-red-700' : 'bg-muted/50 text-secondary/60'
+        )}>
+          {isWon ? <CheckCircle2 size={14} /> : isLost ? <XCircle size={14} /> : <Lock size={14} />}
+          {isWon ? 'Gagné' : isLost ? 'Perdu' : 'En cours'}
         </div>
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs tabular-nums text-secondary-500">
-            {coupon.total_odds.toFixed(2)}
-          </span>
-          {hasDetails && (
-            <ChevronDown
-              size={16}
-              className={`text-secondary-400 transition-transform duration-200 ${
-                expanded ? "rotate-180" : ""
-              }`}
-            />
-          )}
-        </div>
-      </button>
-
-      {expanded && hasDetails && (
-        <div className="space-y-2 border-t border-muted/60 px-4 py-3">
-          {coupon.items.map((item) => (
-            <div key={item.id} className="flex items-center justify-between text-sm">
-              <span className="text-secondary-700">
-                {item.home_team} – {item.away_team}
-                <span className="ml-2 text-xs text-secondary-400">{item.market}</span>
-              </span>
-              <span
-                className={`font-mono text-xs tabular-nums ${
-                  item.result === "won"
-                    ? "text-emerald-600"
-                    : item.result === "lost"
-                      ? "text-red-500"
-                      : "text-secondary-400"
-                }`}
-              >
-                {item.odds.toFixed(2)}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {!hasDetails && (
-        <div className="flex items-center gap-2 border-t border-muted/60 px-4 py-3 text-xs text-secondary-400">
-          <LockIcon size={14} />
-          Connectez-vous pour voir le détail
-        </div>
-      )}
-
-      {coupon.hash && (
-        <div className="flex items-center justify-between border-t border-muted/60 px-4 py-2">
-          <div
-            className="flex items-center gap-1.5 text-[11px] font-medium text-primary"
-            title="Coupon verrouillé avant les matchs et vérifiable par empreinte SHA-256"
-          >
-            <ShieldCheck size={13} />
-            Vérifié
+      </div>
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-xs text-secondary/60">Cote totale</span>
+        <span className="text-xl font-semibold font-mono tabular-nums text-secondary">{coupon.total_odds?.toFixed(2)}</span>
+      </div>
+      {isPremium ? (
+        <div className="pt-4 border-t border-muted/40">
+          <p className="text-[10px] text-secondary/50 font-mono mb-1">SHA-256 Hash (Preuve d'intégrité)</p>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-secondary/70 font-mono truncate max-w-[200px]">{coupon.sha256_hash || 'Non disponible'}</span>
+            <button onClick={handleCopyHash} className="flex items-center gap-1 text-[10px] font-medium text-primary hover:text-primary/80 transition-colors">
+              {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? 'Copié' : 'Copier'}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => navigator.clipboard.writeText(coupon.hash ?? "")}
-            className="flex items-center gap-1 font-mono text-[10px] text-secondary-400 transition-colors duration-200 hover:text-secondary-600"
-          >
-            {coupon.hash.slice(0, 10)}…
-            <Copy size={11} />
-          </button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center gap-2 py-3 mt-2 rounded-lg bg-muted/30 text-primary/60">
+          <Lock size={14} /> <span className="text-xs font-medium">Connectez-vous pour voir le détail</span>
         </div>
       )}
     </div>

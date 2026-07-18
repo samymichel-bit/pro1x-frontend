@@ -1,18 +1,13 @@
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDateFr(iso: string) {
-  return new Date(iso).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-export function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+export function formatFCFA(amount: number): string {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'decimal',
+    maximumFractionDigits: 0,
+  }).format(amount) + ' FCFA';
 }

@@ -1,24 +1,31 @@
-import type { CouponClass } from "@/types";
+'use client';
 
-const STYLES: Record<CouponClass, string> = {
-  safe: "bg-emerald-600",
-  opportunite: "bg-accent",
-  risk: "bg-red-600",
-};
+import { cn } from '@/lib/utils';
+import type { CouponClass } from '@/types';
 
-export default function Badge({
-  classe,
-  children,
-}: {
+interface BadgeProps {
   classe: CouponClass;
-  children: React.ReactNode;
-}) {
+  size?: 'sm' | 'md';
+  className?: string;
+}
+
+const badgeConfig = {
+  safe: { bg: 'bg-emerald-500', text: 'text-white', label: 'Safe', glow: 'shadow-emerald-500/20' },
+  opportunite: { bg: 'bg-amber-500', text: 'text-white', label: 'Opportunité', glow: 'shadow-amber-500/20' },
+  risk: { bg: 'bg-red-500', text: 'text-white', label: 'Risk', glow: 'shadow-red-500/20' },
+} as const;
+
+export function Badge({ classe, size = 'sm', className }: BadgeProps) {
+  const config = badgeConfig[classe];
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white ${STYLES[classe]}`}
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
-      {children}
+    <span className={cn(
+      'inline-flex items-center font-semibold uppercase tracking-wider shadow-sm',
+      config.bg, config.text, config.glow,
+      size === 'sm' && 'px-2.5 py-0.5 rounded-full text-[10px]',
+      size === 'md' && 'px-3 py-1 rounded-md text-xs',
+      className
+    )}>
+      {config.label}
     </span>
   );
 }
