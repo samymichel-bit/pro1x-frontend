@@ -1,45 +1,32 @@
 'use client';
-
-import { useState } from 'react';
 import { ResultCard } from '@/components/ResultCard';
-import { Skeleton } from '@/components/Skeleton';
-import { useResults } from '@/hooks/useResults';
-import { Calendar } from 'lucide-react';
+
+const MOCK_RESULTS = [
+  {
+    id: 'r1', class: 'safe', total_odds: 1.78, min_odds: 1.50, max_odds: 2.00, match_count: 2, created_at: new Date().toISOString(), sha256_hash: 'a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456',
+    items: [
+      { id: 'r1', sport: 'football', league: 'Ligue 1', home_team: 'PSG', away_team: 'Lyon', market: 'Victoire PSG', prediction: 'Oui', odds: 1.45, probability: 82, match_date: new Date().toISOString(), status: 'won', actual_result: 'PSG 3-1 Lyon' },
+      { id: 'r2', sport: 'basketball', league: 'NBA', home_team: 'Bucks', away_team: 'Nets', market: 'Over 220.5', prediction: 'Oui', odds: 1.88, probability: 65, match_date: new Date().toISOString(), status: 'won', actual_result: 'Bucks 118 - Nets 110' }
+    ]
+  },
+  {
+    id: 'r2', class: 'opportunite', total_odds: 2.65, min_odds: 2.20, max_odds: 3.20, match_count: 2, created_at: new Date().toISOString(), sha256_hash: 'b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef1234567',
+    items: [
+      { id: 'r3', sport: 'football', league: 'Premier League', home_team: 'Arsenal', away_team: 'Tottenham', market: 'Arsenal & Over 2.5', prediction: 'Oui', odds: 2.45, probability: 48, match_date: new Date().toISOString(), status: 'won', actual_result: 'Arsenal 3-1 Tottenham' },
+      { id: 'r4', sport: 'football', league: 'La Liga', home_team: 'Atletico', away_team: 'Sevilla', market: 'BTTS', prediction: 'Oui', odds: 1.95, probability: 62, match_date: new Date().toISOString(), status: 'lost', actual_result: 'Atletico 2-0 Sevilla' }
+    ]
+  }
+];
 
 export default function ResultsPage() {
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const { data, isLoading, error } = useResults(date);
-  const results = data?.coupons || data || []; 
-
   return (
     <div className="min-h-[100dvh] bg-surface pb-24">
       <header className="px-6 pt-8 pb-6">
         <h1 className="font-serif text-3xl font-bold text-primary mb-2">Résultats</h1>
         <p className="text-sm text-secondary/70">Historique vérifié et transparent de nos performances.</p>
       </header>
-      <div className="px-6 mb-6">
-        <div className="relative">
-          <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/40" />
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 rounded-xl border border-muted bg-white text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-          />
-        </div>
-      </div>
       <div className="px-6 space-y-4">
-        {isLoading ? (
-          <><Skeleton variant="card" className="h-32" /><Skeleton variant="card" className="h-32" /></>
-        ) : error ? (
-          <div className="text-center py-12 text-red-500">Erreur de chargement des résultats.</div>
-        ) : results.length > 0 ? (
-          results.map((coupon: any, idx: number) => (
-            <ResultCard key={coupon.id || idx} coupon={coupon} isPremium={true} />
-          ))
-        ) : (
-          <div className="text-center py-12 text-secondary/60">Aucun résultat pour cette date.</div>
-        )}
+        {MOCK_RESULTS.map((coupon) => <ResultCard key={coupon.id} coupon={coupon} isPremium={true} />)}
       </div>
     </div>
   );
